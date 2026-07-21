@@ -8,7 +8,7 @@ A full-stack application for tracking event tickets and client assignments. It m
 
 ## 🏗️ Architecture Overview
 
-![Architecture Diagram](docs/architecture.png)
+![Architecture Diagram](screenshots/architecture.png)
 
 - **Frontend:** Angular (standalone components, `@for` control flow), served from S3 via CloudFront
 - **Backend:** Node.js + Express REST API, containerized and running on ECS Fargate behind an Application Load Balancer
