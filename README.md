@@ -54,7 +54,6 @@ event-ticket-tracker/
 │   ├── ecs.tf
 │   ├── frontend.tf
 │   ├── domain.tf
-│   └── RUNBOOK.md
 ├── screenshots/
 └── README.md
 ```
