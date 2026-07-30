@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -20,8 +21,27 @@ db.connect((err) => {
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+app.set('trust proxy', 1);
+
+const corsOptions = {
+  origin: process.env.FRONTEND_ORIGIN || 'https://events.kevinlutes.com'
+};
+app.use(cors(corsOptions));
 app.use(express.json());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests, please try again later.'
+});
+
+function requireApiKey(req, res, next) {
+  const key = req.header('X-API-Key');
+  if (!key || key !== process.env.API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+}
 
 const router = express.Router();
 
@@ -60,6 +80,17 @@ router.get('/tickets', (req, res) => {
 
 router.post('/tickets', (req, res) => {
   const { event_id, client_id, status, price } = req.body;
+
+  if (!event_id || !client_id) {
+    return res.status(400).json({ error: 'event_id and client_id are required' });
+  }
+  if (!['available', 'assigned'].includes(status)) {
+    return res.status(400).json({ error: "status must be 'available' or 'assigned'" });
+  }
+  if (typeof price !== 'number' || price <= 0) {
+    return res.status(400).json({ error: 'price must be a positive number' });
+  }
+
   const sql = 'INSERT INTO tickets (event_id, client_id, status, price) VALUES (?, ?, ?, ?)';
   db.query(sql, [event_id, client_id, status, price], (err, result) => {
     if (err) {
@@ -74,6 +105,11 @@ router.post('/tickets', (req, res) => {
 router.put('/tickets/:id/assign', (req, res) => {
   const { id } = req.params;
   const { client_id } = req.body;
+
+  if (!client_id) {
+    return res.status(400).json({ error: 'client_id is required' });
+  }
+
   const sql = 'UPDATE tickets SET client_id = ?, status = ? WHERE id = ?';
   db.query(sql, [client_id, 'assigned', id], (err, result) => {
     if (err) {
@@ -85,7 +121,11 @@ router.put('/tickets/:id/assign', (req, res) => {
   });
 });
 
-app.use('/api', router);
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+app.use('/api', limiter, requireApiKey, router);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

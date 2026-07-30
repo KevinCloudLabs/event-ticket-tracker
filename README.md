@@ -14,7 +14,7 @@ A full-stack application for tracking event tickets and client assignments. It m
 - **Backend:** Node.js + Express REST API, containerized and running on ECS Fargate behind an Application Load Balancer
 - **Database:** MySQL on RDS, in a private subnet with no public access
 - **Networking:** Custom VPC with public/private subnets, NAT Gateway for outbound access from private resources
-- **Security:** CloudFront attaches a secret `X-Origin-Verify` header on every request to the ALB. The ALB rejects any request without it, preventing traffic from bypassing CloudFront and hitting the load balancer directly
+- **Security:** CloudFront attaches a secret `X-Origin-Verify` header on every request to the ALB, and the ALB rejects any request without it, preventing traffic from bypassing CloudFront and hitting the load balancer directly. At the application layer, every `/api` route requires an `X-API-Key` header, requests are rate-limited per IP, and CORS is restricted to the live frontend origin
 - **Infrastructure as Code:** Entire stack defined in Terraform (VPC, RDS, ECS, ALB, ECR, S3, CloudFront, ACM, Route 53)
 
 ---
@@ -80,6 +80,10 @@ RDS and ECS tasks have no direct internet exposure. Only the ALB and CloudFront 
 
 CloudFront attaches a secret header to every request it forwards to the ALB, and the ALB's listener rule rejects anything without it. This closes off the ALB's public DNS name as a bypass route, so the only way to reach the API is through CloudFront, even though the ALB technically has a public address.
 
+**Application-Layer Security**
+
+Infrastructure-level verification (X-Origin-Verify) confirms a request came through CloudFront, but it doesn't say anything about who's making the request. Every `/api` route requires a valid `X-API-Key` header, checked in middleware before any route handler runs. `POST /tickets` and `PUT /tickets/:id/assign` also validate their inputs (required fields, a `status` restricted to `available`/`assigned`, and `price` required to be a positive number) rather than trusting the request body outright. CORS is scoped to the live frontend origin instead of allowing any site to call the API from a browser, and all `/api` routes are rate-limited per IP (100 requests / 15 minutes) as a basic abuse guard. This is a shared-secret API key rather than per-user authentication, so it stops unauthenticated and casual abuse, but a natural next step would be per-user JWT auth with a real login flow.
+
 **ECS Fargate Over EC2**
 
 Fargate removes server maintenance and provides repeatable, container-based deployments, making it a good fit for a stateless API. It's the better fit for this kind of workload going forward, even with EC2 remaining the right call elsewhere.
@@ -112,6 +116,7 @@ This project expanded my experience beyond cloud infrastructure into application
 - Fronting both a static frontend and a private backend with a single CloudFront distribution, using path-based routing to send traffic to different origins
 - Implementing the X-Origin-Verify pattern to prevent an ALB's public DNS name from becoming a security bypass
 - Getting a shell into a running ECS Fargate task with ECS Exec, and why that's the correct way to reach a properly private RDS instance from outside its VPC
+- The difference between infrastructure-layer verification and application-layer authentication. X-Origin-Verify proves a request came through CloudFront, but proving *who* is calling the API is a separate concern that needs its own layer (API key middleware, input validation, and per-IP rate limiting)
 
 ---
 
@@ -126,6 +131,14 @@ Since debugging a live system is different from building one, this section docum
 - **Validating connectivity at the network boundary** when a task can't reach RDS, checking the security group chain and subnet routing before assuming it's an application bug, since a "can't connect" error can originate from either layer
 
 If a client reported tickets not appearing, my first steps would be checking CloudWatch for a 500 or a SQL error, cross-referencing recent ECS deployments to rule out a bad release, then checking the ALB target group health if the whole service seems down rather than one query. This mirrors the workflow I used to trace a health-check failure back to a route-prefix mismatch and, separately, diagnose a "connected but no data" issue caused by an unseeded database.
+
+---
+
+## 🚀 Future Improvements
+
+- Replace the shared API key with per-user JWT authentication (login flow, hashed credentials, token-based sessions)
+- Add real-time notifications when a ticket is assigned
+- Tighten API validation further (e.g. confirming `event_id`/`client_id` actually exist before inserting a ticket)
 
 ---
 
