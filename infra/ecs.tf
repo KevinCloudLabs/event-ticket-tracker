@@ -46,7 +46,8 @@ resource "aws_ecs_task_definition" "api" {
       { name = "DB_HOST", value = aws_db_instance.main.address },
       { name = "DB_NAME", value = "ticket_tracker" },
       { name = "DB_USER", value = "admin" },
-      { name = "DB_PASSWORD", value = var.db_password }
+      { name = "DB_PASSWORD", value = var.db_password },
+      { name = "JWT_SECRET", value = var.jwt_secret }
     ]
     logConfiguration = {
       logDriver = "awslogs"

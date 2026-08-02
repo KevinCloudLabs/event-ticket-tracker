@@ -6,6 +6,7 @@ dist/
 .DS_Store
 Thumbs.db
 *.sql
+!backend/db/migrations/*.sql
 *.tfstate
 *.tfstate.*
 .terraform/

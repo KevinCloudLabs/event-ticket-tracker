@@ -47,3 +47,9 @@ variable "origin_verify_secret" {
   sensitive   = true
   default     = "changeme-random-secret"
 }
+
+variable "jwt_secret" {
+  description = "Secret used to sign and verify user JWTs"
+  type        = string
+  sensitive   = true
+}

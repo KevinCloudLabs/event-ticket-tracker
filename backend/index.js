@@ -2,6 +2,13 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const bcrypt = require('bcryptjs');
+const { signToken, requireAuth } = require('./auth');
+
+if (!process.env.JWT_SECRET) {
+  console.error('JWT_SECRET environment variable is required');
+  process.exit(1);
+}
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -35,13 +42,42 @@ const limiter = rateLimit({
   message: 'Too many requests, please try again later.'
 });
 
-function requireApiKey(req, res, next) {
-  const key = req.header('X-API-Key');
-  if (!key || key !== process.env.API_KEY) {
-    return res.status(401).json({ error: 'Unauthorized' });
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many login attempts, please try again later.'
+});
+
+app.post('/api/auth/login', loginLimiter, (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password are required' });
   }
-  next();
-}
+
+  db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Login failed' });
+    }
+    if (results.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const user = results[0];
+    bcrypt.compare(password, user.password_hash, (err, matches) => {
+      if (err || !matches) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      const token = signToken(user);
+      res.json({
+        token,
+        user: { id: user.id, email: user.email, name: user.name, role: user.role }
+      });
+    });
+  });
+});
 
 const router = express.Router();
 
@@ -125,7 +161,7 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-app.use('/api', limiter, requireApiKey, router);
+app.use('/api', limiter, requireAuth, router);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
