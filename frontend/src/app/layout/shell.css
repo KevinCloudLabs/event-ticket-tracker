@@ -118,3 +118,18 @@
   max-width: 1200px;
   margin: 0 auto;
 }
+
+@media (max-width: 720px) {
+  .page-outlet {
+    padding: 1.25rem 1rem 2.5rem;
+  }
+
+  .org-selector span,
+  .org-selector {
+    font-size: 0.85rem;
+  }
+
+  .profile-name {
+    display: none;
+  }
+}

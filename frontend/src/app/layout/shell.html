@@ -1,5 +1,11 @@
 <mat-sidenav-container class="shell">
-  <mat-sidenav mode="side" opened class="sidebar" [fixedInViewport]="true">
+  <mat-sidenav
+    #drawer
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    class="sidebar"
+    [fixedInViewport]="isMobile()"
+  >
     <div class="brand">
       <mat-icon class="brand-icon">confirmation_number</mat-icon>
       <span class="brand-name">Ticket Tracker</span>
@@ -12,6 +18,7 @@
           [routerLink]="item.path"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+          (click)="isMobile() && drawer.close()"
         >
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <span matListItemTitle>{{ item.label }}</span>
@@ -22,6 +29,12 @@
 
   <mat-sidenav-content class="content">
     <mat-toolbar class="topbar">
+      @if (isMobile()) {
+        <button mat-icon-button (click)="drawer.toggle()" aria-label="Toggle menu">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+
       <span class="org-selector">
         <mat-icon>apartment</mat-icon>
         Kevin's Org

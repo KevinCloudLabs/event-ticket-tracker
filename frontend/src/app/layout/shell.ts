@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AuthService } from '../auth.service';
 
 interface NavItem {
@@ -40,7 +41,13 @@ export class Shell {
     { label: 'Settings', path: '/settings', icon: 'settings' }
   ];
 
-  constructor(public authService: AuthService, private router: Router) {}
+  isMobile = signal(false);
+
+  constructor(public authService: AuthService, private router: Router, breakpointObserver: BreakpointObserver) {
+    breakpointObserver.observe(Breakpoints.Handset).subscribe((result) => {
+      this.isMobile.set(result.matches);
+    });
+  }
 
   logout(): void {
     this.authService.logout();
