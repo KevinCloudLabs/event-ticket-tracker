@@ -21,7 +21,7 @@ export class Login {
     this.error.set(null);
     this.loading.set(true);
 
-    this.authService.login(this.email, this.password).subscribe({
+    this.authService.login(this.email.trim(), this.password).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigate(['/']);
