@@ -1,0 +1,35 @@
+<div class="events-page">
+  <div class="page-header">
+    <h1>Events</h1>
+    <p>Upcoming events and ticket inventory</p>
+  </div>
+
+  <div class="event-grid">
+    @for (event of rows(); track event.id) {
+      <a class="event-card-link" [routerLink]="['/events', event.id]">
+        <mat-card class="event-card">
+          <div class="event-card-header">
+            <span class="event-name">{{ event.name }}</span>
+            <mat-icon>chevron_right</mat-icon>
+          </div>
+          <span class="event-meta">{{ event.venue }} · {{ event.event_date | date:'mediumDate' }}</span>
+
+          <div class="inventory-bar">
+            <div
+              class="inventory-fill"
+              [style.width.%]="event.total ? (event.assigned / event.total) * 100 : 0"
+            ></div>
+          </div>
+          <div class="inventory-legend">
+            <span>{{ event.assigned }} sold</span>
+            <span>{{ event.available }} available</span>
+          </div>
+        </mat-card>
+      </a>
+    }
+
+    @if (rows().length === 0) {
+      <p class="empty">No events yet.</p>
+    }
+  </div>
+</div>

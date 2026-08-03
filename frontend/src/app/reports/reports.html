@@ -1,0 +1,58 @@
+<div class="reports-page">
+  <div class="page-header">
+    <h1>Reports</h1>
+    <p>Revenue and client spend across the whole portfolio</p>
+  </div>
+
+  <div class="kpi-row">
+    <mat-card class="kpi-card">
+      <span class="kpi-label">Total revenue</span>
+      <span class="kpi-value">${{ totalSpend() | number:'1.2-2' }}</span>
+    </mat-card>
+    <mat-card class="kpi-card">
+      <span class="kpi-label">Average ticket value</span>
+      <span class="kpi-value">${{ avgTicketValue() | number:'1.2-2' }}</span>
+    </mat-card>
+    <mat-card class="kpi-card">
+      <span class="kpi-label">Clients with purchases</span>
+      <span class="kpi-value">{{ clientSpend().length }}</span>
+    </mat-card>
+  </div>
+
+  <mat-card class="chart-card">
+    <span class="section-title">Monthly revenue</span>
+    @if (spendBars().length === 0) {
+      <p class="empty">No purchase history yet.</p>
+    } @else {
+      <div class="bar-chart">
+        @for (bar of spendBars(); track bar.month) {
+          <div class="bar-column">
+            <span class="bar-value">${{ bar.total_spend | number:'1.0-0' }}</span>
+            <div class="bar" [style.height.%]="bar.heightPct" [title]="'$' + bar.total_spend"></div>
+            <span class="bar-label">{{ bar.month }}</span>
+          </div>
+        }
+      </div>
+    }
+  </mat-card>
+
+  <mat-card class="table-card">
+    <span class="section-title">Spend by client</span>
+    <table class="spend-table">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Total spend</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of clientSpend(); track row.client_id) {
+          <tr>
+            <td>{{ row.client_name }}</td>
+            <td>${{ row.total_spend | number:'1.2-2' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </mat-card>
+</div>

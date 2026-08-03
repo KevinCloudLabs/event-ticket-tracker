@@ -1,1 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global design tokens for the app shell — surfaces Material's theme doesn't cover directly. */
+:root {
+  --app-surface: #ffffff;
+  --app-surface-muted: #f4f5f7;
+  --app-border: #e2e4e9;
+  --app-text: #1c1f26;
+  --app-text-muted: #6b7280;
+  --app-sidebar-bg: #14162b;
+  --app-sidebar-text: #cbd0e0;
+  --app-sidebar-text-active: #ffffff;
+  --app-accent: #2563eb;
+  --app-success: #16a34a;
+  --app-warning: #d97706;
+  --app-danger: #dc2626;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  background-color: var(--app-surface-muted);
+}
+
+.mat-mdc-card {
+  box-shadow: none !important;
+  border: 1px solid var(--app-border);
+}

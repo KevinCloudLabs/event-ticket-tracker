@@ -1,0 +1,85 @@
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.page-header p {
+  margin: 0.25rem 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.event-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.event-card {
+  background: var(--app-surface);
+  padding: 1.25rem !important;
+  transition: border-color 0.15s ease;
+}
+
+.event-card-link:hover .event-card {
+  border-color: var(--app-accent);
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-card-header mat-icon {
+  color: var(--app-text-muted);
+}
+
+.event-name {
+  font-weight: 700;
+  color: var(--app-text);
+  font-size: 1rem;
+}
+
+.event-meta {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+  margin: 0.35rem 0 1rem;
+}
+
+.inventory-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: #eef0f4;
+  overflow: hidden;
+}
+
+.inventory-fill {
+  height: 100%;
+  background: var(--app-accent);
+}
+
+.inventory-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+  margin-top: 0.4rem;
+}
+
+.empty {
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}

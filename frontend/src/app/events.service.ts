@@ -22,7 +22,11 @@ export class EventsService {
     return this.http.get(`${this.apiUrl}/tickets`);
   }
 
-  assignTicket(ticketId: number, clientId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/tickets/${ticketId}/assign`, { client_id: clientId });
+  assignTicket(ticketId: number, clientId: number, ticketType?: string): Observable<any> {
+    const body: any = { client_id: clientId };
+    if (ticketType) {
+      body.ticket_type = ticketType;
+    }
+    return this.http.put(`${this.apiUrl}/tickets/${ticketId}/assign`, body);
   }
 }

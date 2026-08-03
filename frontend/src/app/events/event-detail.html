@@ -1,0 +1,85 @@
+<div class="event-detail-page">
+  <a class="back-link" routerLink="/events">
+    <mat-icon>arrow_back</mat-icon>
+    Back to events
+  </a>
+
+  @if (event(); as ev) {
+    <div class="page-header">
+      <h1>{{ ev.name }}</h1>
+      <p>{{ ev.venue }} · {{ ev.event_date | date:'fullDate' }}</p>
+    </div>
+
+    <div class="detail-grid">
+      <mat-card class="inventory-card">
+        <span class="section-title">Ticket inventory</span>
+        <div class="donut-wrap">
+          <svg viewBox="0 0 120 120" class="donut">
+            <circle cx="60" cy="60" r="52" class="donut-track"></circle>
+            <circle
+              cx="60"
+              cy="60"
+              r="52"
+              class="donut-fill"
+              [style.strokeDasharray]="2 * 3.14159 * 52"
+              [style.strokeDashoffset]="donutOffset()"
+            ></circle>
+          </svg>
+          <div class="donut-label">
+            <span class="donut-pct">{{ assignedPct() }}%</span>
+            <span class="donut-caption">sold</span>
+          </div>
+        </div>
+
+        <div class="inventory-stats">
+          <div class="stat">
+            <span class="dot assigned"></span>
+            <span>{{ assignedCount() }} sold</span>
+          </div>
+          <div class="stat">
+            <span class="dot available"></span>
+            <span>{{ availableCount() }} available</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="revenue-card">
+        <span class="section-title">Revenue from this event</span>
+        <span class="revenue-value">${{ totalRevenue() | number:'1.2-2' }}</span>
+        <span class="revenue-meta">{{ eventTickets().length }} tickets total</span>
+      </mat-card>
+    </div>
+
+    <mat-card class="ticket-list-card">
+      <span class="section-title">Tickets</span>
+      <table class="ticket-list-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ticket of eventTickets(); track ticket.id) {
+            <tr>
+              <td>{{ ticket.id }}</td>
+              <td>{{ clientName(ticket.client_id) }}</td>
+              <td>
+                <mat-chip-set>
+                  <mat-chip [class]="'status-chip ' + ticket.status">{{ ticket.status }}</mat-chip>
+                </mat-chip-set>
+              </td>
+              <td>{{ ticket.ticket_type }}</td>
+              <td>${{ ticket.price | number:'1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </mat-card>
+  } @else {
+    <p class="empty">Event not found.</p>
+  }
+</div>

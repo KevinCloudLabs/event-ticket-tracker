@@ -17,45 +17,14 @@
 
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .kpi-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
   padding: 1.1rem 1.25rem !important;
   background: var(--app-surface);
-}
-
-.kpi-icon {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  color: #fff;
-}
-
-.kpi-icon.revenue {
-  background: #2563eb;
-}
-
-.kpi-icon.sold {
-  background: #16a34a;
-}
-
-.kpi-icon.available {
-  background: #d97706;
-}
-
-.kpi-icon.avg {
-  background: #7c3aed;
 }
 
 .kpi-label {
@@ -75,17 +44,11 @@
   margin-top: 0.15rem;
 }
 
-.content-row {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 1rem;
-  align-items: start;
-}
-
 .chart-card,
-.activity-card {
-  padding: 1.25rem 1.5rem !important;
+.table-card {
   background: var(--app-surface);
+  padding: 1.25rem 1.5rem !important;
+  margin-bottom: 1rem;
 }
 
 .section-title {
@@ -106,7 +69,7 @@
   display: flex;
   align-items: flex-end;
   gap: 1.5rem;
-  height: 180px;
+  height: 220px;
 }
 
 .bar-column {
@@ -139,53 +102,26 @@
   white-space: nowrap;
 }
 
-.activity-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  max-height: 320px;
-  overflow-y: auto;
+.spend-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.activity-list li {
-  display: flex;
-  gap: 0.65rem;
-  align-items: flex-start;
+.spend-table th,
+.spend-table td {
+  text-align: left;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--app-border);
+  font-size: 0.9rem;
 }
 
-.activity-icon {
-  color: #16a34a;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  margin-top: 0.1rem;
-}
-
-.activity-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.activity-text {
-  font-size: 0.85rem;
-  color: var(--app-text);
-}
-
-.activity-meta {
-  font-size: 0.75rem;
+.spend-table th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--app-text-muted);
 }
 
-@media (max-width: 900px) {
-  .kpi-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .content-row {
-    grid-template-columns: 1fr;
-  }
+.spend-table tr:last-child td {
+  border-bottom: none;
 }

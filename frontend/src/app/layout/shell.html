@@ -1,0 +1,53 @@
+<mat-sidenav-container class="shell">
+  <mat-sidenav mode="side" opened class="sidebar" [fixedInViewport]="true">
+    <div class="brand">
+      <mat-icon class="brand-icon">confirmation_number</mat-icon>
+      <span class="brand-name">Ticket Tracker</span>
+    </div>
+
+    <mat-nav-list class="nav-list">
+      @for (item of navItems; track item.path) {
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="content">
+    <mat-toolbar class="topbar">
+      <span class="org-selector">
+        <mat-icon>apartment</mat-icon>
+        Kevin's Org
+      </span>
+
+      <span class="spacer"></span>
+
+      <button mat-button class="profile-button" [matMenuTriggerFor]="profileMenu">
+        <span class="avatar">{{ initials() }}</span>
+        <span class="profile-name">{{ authService.currentUser()?.name || authService.currentUser()?.email }}</span>
+        <mat-icon>expand_more</mat-icon>
+      </button>
+      <mat-menu #profileMenu="matMenu">
+        <a mat-menu-item routerLink="/settings">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </a>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Sign out</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <main class="page-outlet">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,47 @@
+<div class="clients-page">
+  <div class="page-header">
+    <h1>Clients</h1>
+    <p>Every client we've sold tickets to, ranked by lifetime spend</p>
+  </div>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      matInput
+      placeholder="Search by name, company, or email"
+      [ngModel]="searchText()"
+      (ngModelChange)="searchText.set($event)"
+    />
+  </mat-form-field>
+
+  <div class="client-grid">
+    @for (client of rows(); track client.id) {
+      <mat-card class="client-card">
+        <div class="client-header">
+          <span class="avatar">{{ initials(client.name) }}</span>
+          <div class="client-name-block">
+            <span class="client-name">{{ client.name }}</span>
+            <span class="client-company">{{ client.company || 'Independent' }}</span>
+          </div>
+        </div>
+
+        <div class="client-email">{{ client.email || 'No email on file' }}</div>
+
+        <div class="client-stats">
+          <div class="stat">
+            <span class="stat-value">{{ client.ticketCount }}</span>
+            <span class="stat-label">Tickets</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">${{ client.totalSpend | number:'1.2-2' }}</span>
+            <span class="stat-label">Total spend</span>
+          </div>
+        </div>
+      </mat-card>
+    }
+
+    @if (rows().length === 0) {
+      <p class="empty">No clients match your search.</p>
+    }
+  </div>
+</div>

@@ -1,0 +1,99 @@
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.page-header p {
+  margin: 0.25rem 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}
+
+.toolbar-card {
+  padding: 1rem 1.25rem !important;
+  margin-bottom: 1rem;
+  background: var(--app-surface);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  width: 340px;
+}
+
+.status-field {
+  width: 160px;
+}
+
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.selected-count {
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+}
+
+.bulk-client-field {
+  width: 200px;
+}
+
+.table-card {
+  padding: 0 !important;
+  background: var(--app-surface);
+  overflow-x: auto;
+}
+
+.tickets-table {
+  width: 100%;
+}
+
+.status-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-chip.available {
+  --mat-chip-selected-container-color: #e8f2ff;
+  --mat-chip-selected-label-text-color: #1d4ed8;
+  background: #e8f2ff;
+  color: #1d4ed8;
+}
+
+.status-chip.assigned {
+  background: #e7f6ec;
+  color: #15803d;
+}
+
+.row-assign {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.row-assign-field {
+  width: 160px;
+}
+
+.empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+}

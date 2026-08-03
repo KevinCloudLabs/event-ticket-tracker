@@ -1,18 +1,26 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 import { EventsService } from '../events.service';
-import { AuthService } from '../auth.service';
-import { ReportsService, ClientSpend, SpendOverTime } from '../reports.service';
+import { ReportsService, SpendOverTime } from '../reports.service';
 
 interface SpendBar extends SpendOverTime {
   heightPct: number;
 }
 
+interface ActivityItem {
+  ticketId: number;
+  eventName: string;
+  clientName: string;
+  price: number;
+  purchasedAt: string;
+}
+
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePipe, DecimalPipe, FormsModule],
+  imports: [DatePipe, DecimalPipe, MatCardModule, MatChipsModule, MatIconModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -20,36 +28,44 @@ export class Dashboard implements OnInit {
   events = signal<any[]>([]);
   clients = signal<any[]>([]);
   tickets = signal<any[]>([]);
-
-  clientSpend = signal<ClientSpend[]>([]);
   spendOverTime = signal<SpendOverTime[]>([]);
   avgTicketValue = signal<number>(0);
 
-  spendBars = computed<SpendBar[]>(() => {
-    const data = this.spendOverTime();
-    const max = Math.max(...data.map(d => Number(d.total_spend)), 1);
-    return data.map(d => ({ ...d, heightPct: (Number(d.total_spend) / max) * 100 }));
-  });
-
-  availableTickets = computed(() =>
-    this.tickets().filter(t => t.status === 'available')
+  totalRevenue = computed(() =>
+    this.tickets()
+      .filter((t) => t.status === 'assigned')
+      .reduce((sum, t) => sum + Number(t.price), 0)
   );
 
-  selectedTicketId: number | null = null;
-  selectedClientId: number | null = null;
+  ticketsSold = computed(() => this.tickets().filter((t) => t.status === 'assigned').length);
+  ticketsAvailable = computed(() => this.tickets().filter((t) => t.status === 'available').length);
 
-  constructor(
-    private eventsService: EventsService,
-    private reportsService: ReportsService,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  spendBars = computed<SpendBar[]>(() => {
+    const data = this.spendOverTime();
+    const max = Math.max(...data.map((d) => Number(d.total_spend)), 1);
+    return data.map((d) => ({ ...d, heightPct: (Number(d.total_spend) / max) * 100 }));
+  });
+
+  activityFeed = computed<ActivityItem[]>(() => {
+    const events = this.events();
+    const clients = this.clients();
+
+    return this.tickets()
+      .filter((t) => t.status === 'assigned' && t.purchased_at)
+      .map((t) => ({
+        ticketId: t.id,
+        eventName: events.find((e) => e.id === t.event_id)?.name || 'Unknown event',
+        clientName: clients.find((c) => c.id === t.client_id)?.name || 'Unknown client',
+        price: Number(t.price),
+        purchasedAt: t.purchased_at
+      }))
+      .sort((a, b) => (a.purchasedAt < b.purchasedAt ? 1 : -1))
+      .slice(0, 8);
+  });
+
+  constructor(private eventsService: EventsService, private reportsService: ReportsService) {}
 
   ngOnInit(): void {
-    this.loadAll();
-  }
-
-  loadAll(): void {
     this.eventsService.getEvents().subscribe({
       next: (data) => this.events.set(data),
       error: (err) => console.error('Error fetching events:', err)
@@ -65,15 +81,6 @@ export class Dashboard implements OnInit {
       error: (err) => console.error('Error fetching tickets:', err)
     });
 
-    this.loadReports();
-  }
-
-  loadReports(): void {
-    this.reportsService.getClientSpend().subscribe({
-      next: (data) => this.clientSpend.set(data),
-      error: (err) => console.error('Error fetching client spend:', err)
-    });
-
     this.reportsService.getSpendOverTime().subscribe({
       next: (data) => this.spendOverTime.set(data),
       error: (err) => console.error('Error fetching spend over time:', err)
@@ -83,38 +90,5 @@ export class Dashboard implements OnInit {
       next: (data) => this.avgTicketValue.set(Number(data.avg_ticket_value)),
       error: (err) => console.error('Error fetching average ticket value:', err)
     });
-  }
-
-  eventName(eventId: number): string {
-    const event = this.events().find(e => e.id === eventId);
-    return event ? event.name : 'Unknown event';
-  }
-
-  clientName(clientId: number | null): string {
-    if (!clientId) return '—';
-    const client = this.clients().find(c => c.id === clientId);
-    return client ? client.name : 'Unknown client';
-  }
-
-  assignTicket(): void {
-    if (!this.selectedTicketId || !this.selectedClientId) return;
-
-    this.eventsService.assignTicket(this.selectedTicketId, this.selectedClientId).subscribe({
-      next: () => {
-        alert('Ticket assigned successfully!');
-        this.selectedTicketId = null;
-        this.selectedClientId = null;
-        this.loadAll();
-      },
-      error: (err) => {
-        console.error('Error assigning ticket:', err);
-        alert('Failed to assign ticket.');
-      }
-    });
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 }

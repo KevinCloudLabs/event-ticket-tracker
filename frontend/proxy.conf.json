@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "https://events.kevinlutes.com",
+    "secure": true,
+    "changeOrigin": true
+  }
+}
