@@ -64,6 +64,100 @@ h2 {
   border-bottom: 2px dashed #d8d4c8;
 }
 
+.roi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.kpi-card,
+.chart-card,
+.spend-table-card {
+  background: #fff;
+  border: 1px solid #e5e1d6;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+}
+
+.kpi-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a7a8c;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #14162b;
+}
+
+.empty {
+  color: #7a7a8c;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  height: 140px;
+  margin-top: 0.75rem;
+}
+
+.bar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  flex: 1;
+  gap: 0.4rem;
+}
+
+.bar {
+  width: 100%;
+  min-height: 2px;
+  background: #e8a33d;
+  border-radius: 3px 3px 0 0;
+}
+
+.bar-label {
+  font-size: 0.7rem;
+  color: #7a7a8c;
+  white-space: nowrap;
+}
+
+.spend-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.75rem;
+}
+
+.spend-table th,
+.spend-table td {
+  text-align: left;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.spend-table th {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7a7a8c;
+}
+
+.spend-table tr:last-child td {
+  border-bottom: none;
+}
+
 .event-list {
   list-style: none;
   margin: 0 0 2.5rem;

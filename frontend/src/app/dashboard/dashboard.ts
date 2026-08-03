@@ -1,13 +1,18 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { EventsService } from '../events.service';
 import { AuthService } from '../auth.service';
+import { ReportsService, ClientSpend, SpendOverTime } from '../reports.service';
+
+interface SpendBar extends SpendOverTime {
+  heightPct: number;
+}
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, DecimalPipe, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -15,6 +20,16 @@ export class Dashboard implements OnInit {
   events = signal<any[]>([]);
   clients = signal<any[]>([]);
   tickets = signal<any[]>([]);
+
+  clientSpend = signal<ClientSpend[]>([]);
+  spendOverTime = signal<SpendOverTime[]>([]);
+  avgTicketValue = signal<number>(0);
+
+  spendBars = computed<SpendBar[]>(() => {
+    const data = this.spendOverTime();
+    const max = Math.max(...data.map(d => Number(d.total_spend)), 1);
+    return data.map(d => ({ ...d, heightPct: (Number(d.total_spend) / max) * 100 }));
+  });
 
   availableTickets = computed(() =>
     this.tickets().filter(t => t.status === 'available')
@@ -25,6 +40,7 @@ export class Dashboard implements OnInit {
 
   constructor(
     private eventsService: EventsService,
+    private reportsService: ReportsService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -47,6 +63,25 @@ export class Dashboard implements OnInit {
     this.eventsService.getTickets().subscribe({
       next: (data) => this.tickets.set(data),
       error: (err) => console.error('Error fetching tickets:', err)
+    });
+
+    this.loadReports();
+  }
+
+  loadReports(): void {
+    this.reportsService.getClientSpend().subscribe({
+      next: (data) => this.clientSpend.set(data),
+      error: (err) => console.error('Error fetching client spend:', err)
+    });
+
+    this.reportsService.getSpendOverTime().subscribe({
+      next: (data) => this.spendOverTime.set(data),
+      error: (err) => console.error('Error fetching spend over time:', err)
+    });
+
+    this.reportsService.getAvgTicketValue().subscribe({
+      next: (data) => this.avgTicketValue.set(Number(data.avg_ticket_value)),
+      error: (err) => console.error('Error fetching average ticket value:', err)
     });
   }
 

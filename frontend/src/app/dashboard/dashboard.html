@@ -7,6 +7,50 @@
     <button class="logout-button" type="button" (click)="logout()">Sign out</button>
   </div>
 
+  <h2>ROI overview</h2>
+  <div class="roi-grid">
+    <div class="kpi-card">
+      <span class="kpi-label">Average ticket value</span>
+      <span class="kpi-value">${{ avgTicketValue() | number:'1.2-2' }}</span>
+    </div>
+
+    <div class="chart-card">
+      <span class="kpi-label">Spend over time</span>
+      @if (spendBars().length === 0) {
+        <p class="empty">No purchase history yet.</p>
+      } @else {
+        <div class="bar-chart">
+          @for (bar of spendBars(); track bar.month) {
+            <div class="bar-column">
+              <div class="bar" [style.height.%]="bar.heightPct" [title]="'$' + bar.total_spend"></div>
+              <span class="bar-label">{{ bar.month }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="spend-table-card">
+      <span class="kpi-label">Spend by client</span>
+      <table class="spend-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Total spend</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of clientSpend(); track row.client_id) {
+            <tr>
+              <td>{{ row.client_name }}</td>
+              <td>${{ row.total_spend | number:'1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <h2>Upcoming events</h2>
   <ul class="event-list">
     @for (event of events(); track event.id) {

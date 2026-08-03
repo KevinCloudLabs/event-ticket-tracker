@@ -115,7 +115,7 @@ router.get('/tickets', (req, res) => {
 });
 
 router.post('/tickets', (req, res) => {
-  const { event_id, client_id, status, price } = req.body;
+  const { event_id, client_id, status, price, ticket_type } = req.body;
 
   if (!event_id || !client_id) {
     return res.status(400).json({ error: 'event_id and client_id are required' });
@@ -127,33 +127,89 @@ router.post('/tickets', (req, res) => {
     return res.status(400).json({ error: 'price must be a positive number' });
   }
 
-  const sql = 'INSERT INTO tickets (event_id, client_id, status, price) VALUES (?, ?, ?, ?)';
-  db.query(sql, [event_id, client_id, status, price], (err, result) => {
+  const sql = 'INSERT INTO tickets (event_id, client_id, status, price, ticket_type) VALUES (?, ?, ?, ?, ?)';
+  db.query(sql, [event_id, client_id, status, price, ticket_type || 'general'], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).send('Error creating ticket');
       return;
     }
-    res.status(201).json({ id: result.insertId, event_id, client_id, status, price });
+    res.status(201).json({ id: result.insertId, event_id, client_id, status, price, ticket_type: ticket_type || 'general' });
   });
 });
 
 router.put('/tickets/:id/assign', (req, res) => {
   const { id } = req.params;
-  const { client_id } = req.body;
+  const { client_id, ticket_type } = req.body;
 
   if (!client_id) {
     return res.status(400).json({ error: 'client_id is required' });
   }
 
-  const sql = 'UPDATE tickets SET client_id = ?, status = ? WHERE id = ?';
-  db.query(sql, [client_id, 'assigned', id], (err, result) => {
+  const sql = ticket_type
+    ? 'UPDATE tickets SET client_id = ?, status = ?, purchased_at = CURDATE(), ticket_type = ? WHERE id = ?'
+    : 'UPDATE tickets SET client_id = ?, status = ?, purchased_at = CURDATE() WHERE id = ?';
+  const params = ticket_type ? [client_id, 'assigned', ticket_type, id] : [client_id, 'assigned', id];
+
+  db.query(sql, params, (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).send('Error assigning ticket');
       return;
     }
     res.json({ id, client_id, status: 'assigned' });
+  });
+});
+
+router.get('/reports/client-spend', (req, res) => {
+  const sql = `
+    SELECT c.id AS client_id, c.name AS client_name, COALESCE(SUM(t.price), 0) AS total_spend
+    FROM clients c
+    LEFT JOIN tickets t ON t.client_id = c.id AND t.status = 'assigned'
+    GROUP BY c.id, c.name
+    ORDER BY total_spend DESC
+  `;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error fetching client spend');
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.get('/reports/spend-over-time', (req, res) => {
+  const sql = `
+    SELECT DATE_FORMAT(purchased_at, '%Y-%m') AS month, SUM(price) AS total_spend
+    FROM tickets
+    WHERE status = 'assigned' AND purchased_at IS NOT NULL
+    GROUP BY month
+    ORDER BY month ASC
+  `;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error fetching spend over time');
+      return;
+    }
+    res.json(results);
+  });
+});
+
+router.get('/reports/avg-ticket-value', (req, res) => {
+  const sql = `
+    SELECT COALESCE(AVG(price), 0) AS avg_ticket_value
+    FROM tickets
+    WHERE status = 'assigned'
+  `;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error fetching average ticket value');
+      return;
+    }
+    res.json(results[0]);
   });
 });
 
