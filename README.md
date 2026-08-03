@@ -7,9 +7,24 @@ A full-stack application for tracking event tickets and client assignments. It m
 
 ---
 
+## ✨ Features
+
+- User authentication with JWT
+- Role-based authorization
+- Ticket inventory management
+- Client management
+- Event management
+- Reporting dashboard
+- Search, filtering, sorting and pagination
+- Bulk ticket assignment
+- Responsive Angular Material UI
+- Installable Progressive Web App
+
+---
+
 ## 📈 Before → After
 
-The app went through two builds. Part 1 proved out the AWS infrastructure and a basic working create/read/update workflow behind a shared API key. Part 2 rebuilt the application layer into something closer to a real internal SaaS tool — per-user auth, a reporting layer, and a full UI redesign.
+The app went through two builds. Part 1 proved out the AWS infrastructure and a basic working create/read/update workflow behind a shared API key. Part 2 rebuilt the application layer into something closer to a real internal SaaS tool, with per-user auth, a reporting layer, and a full UI redesign.
 
 | | Part 1: Initial Build | Part 2: Production-Grade SaaS |
 |---|---|---|
@@ -108,11 +123,11 @@ Ticket assignment is modeled as an **update**, not an insert. Tickets exist as i
 
 **Parameterized SQL Queries**
 
-Every query in the API uses parameterized statements throughout, to prevent SQL injection — including the reporting/aggregation endpoints added in Part 2.
+Every query in the API uses parameterized statements throughout, to prevent SQL injection. This includes the reporting/aggregation endpoints added in Part 2.
 
 **Private-Subnet-First Infrastructure**
 
-I designed this so RDS and ECS tasks have no direct internet exposure at all — only the ALB and CloudFront sit in public subnets. Even if someone found the database endpoint, there's no network path to it from outside the VPC; the only way in is through the app itself.
+I designed this so RDS and ECS tasks have no direct internet exposure at all. Only the ALB and CloudFront sit in public subnets. Even if someone found the database endpoint, there's no network path to it from outside the VPC, so the only way in is through the app itself.
 
 **X-Origin-Verify Pattern**
 
@@ -161,7 +176,7 @@ Shows the logged-in user's name, email, and role, with a sign-out button.
 ![Settings](screenshots/settings.png)
 
 ### Mobile
-The whole app is responsive — the sidebar collapses into a hamburger menu overlay on small screens, and it installs to a phone's home screen as a standalone app (PWA).
+The whole app is responsive. The sidebar collapses into a hamburger menu overlay on small screens, and it installs to a phone's home screen as a standalone app (PWA).
 
 ![Mobile dashboard](screenshots/mobile-dashboard.png)
 ![Mobile navigation menu](screenshots/mobile-menu.png)
@@ -204,13 +219,13 @@ If a client reported tickets not appearing, my first steps would be checking Clo
 
 ## 🚀 Part 2: From Initial Build to Production-Grade SaaS
 
-The first pass proved out the infrastructure and a working create/read/update flow behind a shared API key. For Part 2, I used Claude Code as an agentic pair to plan and implement a round of new features and harden the security of what was already deployed — a deliberate way to get hands-on with agentic AI-assisted development itself, on top of learning the subject matter. At a high level:
+The first pass proved out the infrastructure and a working create/read/update flow behind a shared API key. For Part 2, I used Claude Code as an agentic pair to plan and implement a round of new features and harden the security of what was already deployed. It was a deliberate way to get hands-on with agentic AI-assisted development itself, on top of learning the subject matter. At a high level:
 
-- **Per-user login** replacing the shared API key — a real `users` table, hashed passwords, and JWT-based sessions instead of one shared secret
-- **ROI reporting** — spend by client, spend over time, and average ticket value, surfaced as KPI cards and a chart on the dashboard
-- **A full UI redesign** using Angular Material — sidebar navigation, a proper dashboard, a sortable/filterable tickets table with bulk actions, a client roster, and per-event ticket inventory views
-- **PWA support** — installable to a phone's home screen with an app icon and offline caching
-- **A security hardening pass** — encrypting the database, moving secrets out of plaintext config and into AWS's secret store, and tightening IAM permissions and authentication checks
+- **Per-user login** replacing the shared API key: a real `users` table, hashed passwords, and JWT-based sessions instead of one shared secret
+- **ROI reporting**: spend by client, spend over time, and average ticket value, surfaced as KPI cards and a chart on the dashboard
+- **A full UI redesign** using Angular Material: sidebar navigation, a proper dashboard, a sortable/filterable tickets table with bulk actions, a client roster, and per-event ticket inventory views
+- **PWA support**: installable to a phone's home screen with an app icon and offline caching
+- **A security hardening pass**: encrypting the database, moving secrets out of plaintext config and into AWS's secret store, and tightening IAM permissions and authentication checks
 
 I intentionally used Claude Code as an agentic development partner to accelerate implementation while taking time to understand each architectural decision and security improvement before adopting it. This project was as much about learning how to collaborate effectively with AI as it was about building the application itself.
 
@@ -218,6 +233,6 @@ I intentionally used Claude Code as an agentic development partner to accelerate
 
 ## 🤖 A Note on AI Assistance
 
-**Part 1** was built with Claude as a learning and debugging partner while I worked through Angular concepts and troubleshooting issues surfaced in CloudWatch logs and ECS service events. The architecture decisions, including the VPC layout, the X-Origin-Verify security pattern, and modeling ticket assignment as an update rather than an insert, were mine, and I worked through the reasoning behind each piece of infrastructure as it went in, rather than treating any of it as a black box.
+**Part 1** split cleanly along a line I kept intentional. The cloud architecture and the Terraform behind it (the VPC layout, the subnet/security-group design, the X-Origin-Verify pattern, and how the whole AWS stack fits together) was my own work, reasoned through and written myself rather than generated. Claude came in on the application side, as a learning and debugging partner while I worked through Angular concepts and troubleshooting issues surfaced in CloudWatch logs and ECS service events, and on decisions like modeling ticket assignment as an update rather than an insert.
 
 **Part 2** was a deliberate shift in how I used AI on this project: I worked with Claude Code as an agentic collaborator to plan and implement the new features and the security hardening pass, including having it run Terraform and AWS CLI commands directly against my infrastructure under my direction. The goal was to get fluent with agentic AI-assisted development as a skill in its own right, not just to ship features faster. JWT authentication was new to me, so I used this project as an opportunity to learn it properly. I reviewed the generated code, tested the complete authentication flow, and made sure I understood how the pieces fit together before adopting the implementation.
