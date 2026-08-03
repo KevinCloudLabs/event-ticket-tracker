@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
-const { signToken, requireAuth } = require('./auth');
+const { signToken, requireAuth, requireRole } = require('./auth');
 
 if (!process.env.JWT_SECRET) {
   console.error('JWT_SECRET environment variable is required');
@@ -114,7 +114,7 @@ router.get('/tickets', (req, res) => {
   });
 });
 
-router.post('/tickets', (req, res) => {
+router.post('/tickets', requireRole('admin'), (req, res) => {
   const { event_id, client_id, status, price, ticket_type } = req.body;
 
   if (!event_id || !client_id) {
@@ -138,7 +138,7 @@ router.post('/tickets', (req, res) => {
   });
 });
 
-router.put('/tickets/:id/assign', (req, res) => {
+router.put('/tickets/:id/assign', requireRole('admin'), (req, res) => {
   const { id } = req.params;
   const { client_id, ticket_type } = req.body;
 
